@@ -1,0 +1,43 @@
+
+body {
+ font-family: "Noto sans",sans-serif;
+ background: #80c1df;
+ width: 25em;
+ margin-left: 5%;
+ margin-top: 2%;
+ margin-bottom: -5%;
+}
+
+.formulario {
+	width: 90%;
+}
+
+.etiqueta {
+	color: #fff;
+}
+
+.oculto {
+	color: #80c1df;
+}
+
+#saved {
+	margin-left:-6%;
+}
+
+.imagen {
+	margin-left: 48%;
+	margin-top: -17%;
+	height: 42%;
+	width: 42%;
+}
+
+.imagen2 {
+	margin-left: 48%;
+	margin-top: -16.5%;
+	height: 42%;
+	width: 42%;
+}
+
+.bottom {
+	margin-bottom: 1%;
+}

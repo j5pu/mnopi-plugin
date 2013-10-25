@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+	<!-- Google Fonts-Noto Sans -->
+	<link href='http://fonts.googleapis.com/css?family=Noto+Sans' rel='stylesheet' type='text/css'>
+    <!-- Bootstrap -->
+    <link href="bootstrap-3.0.0/dist/css/bootstrap.min.css" rel="stylesheet" media="screen"> 
+    <!-- Plugin style -->
+    <link href="style.css" rel="stylesheet" media="screen">
+</head>
+<body>
+	<form class="form-horizontal" role="form">
+	<div class="form-group">
+	    <label class="col-lg-2 control-label etiqueta">Options</label>
+	 </div>
+	<div class="form-group bottom">
+	    <div class="col-lg-offset-2 col-lg-10">
+	      <div class="checkbox">
+	        <label>
+	          <input type="checkbox" id="sendPageVisited"> <span class="etiqueta">Store visited pages</span>
+	        </label>
+	      </div>
+	      <div class="checkbox">
+	        <label>
+	          <input type="checkbox" id="sendHTMLVisited"> <span class="etiqueta">Store visited pages' HTML code</span>
+	        </label>
+	      </div>
+	      <div class="checkbox">
+	       <label>
+	         <input type="checkbox" id="sendComments"> <span class="etiqueta">Store comments</span>
+	       </label>
+	      </div>
+	      <div class="checkbox">
+	       <label>
+	         <input type="checkbox" id="sendSearch"> <span class="etiqueta">Store searches</span>
+	       </label>
+	       <br />
+	       <br />
+	       <span id="saved" class="oculto">Options saved&nbsp;<span class="glyphicon glyphicon-ok"></span></span>
+	      </div>
+	    </div>
+	  </div>
+	  <div class="form-group">
+	    <div class="col-lg-offset-2 col-lg-10">
+	      <button id="save" class="btn btn-warning">Save</button>
+	      <a href="popup.html" class="btn btn-danger">Back</a>
+	      <img class="imagen2" src="mnopi_logo.png" alt="mnopi">
+	    </div>
+	  </div>
+	</form>
+	
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins)
+    <script src="bootstrap-3.0.0/js/tests/vendor/jquery.js"></script> -->
+    <!-- Include all compiled plugins (below), or include individual files as needed
+    <script src="bootstrap-3.0.0/dist/js/bootstrap.min.js"></script> -->
+    <!-- Plugin script -->
+    <!-- <script type="text/javascript" src="plugin.js"></script> -->
+    <!-- Options script -->
+    <script type="text/javascript" src="options.js"></script>
+</body>
+</html>
+
+
+<!--
+<body>
+
+Favorite Color:
+<select id="color">
+ <option value="red">red</option>
+ <option value="green">green</option>
+ <option value="blue">blue</option>
+ <option value="yellow">yellow</option>
+</select>
+
+<br>
+<div id="status"></div>
+<button id="save">Save</button>
+</body>
+-->
+
