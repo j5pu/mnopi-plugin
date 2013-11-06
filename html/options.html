@@ -5,9 +5,9 @@
 	<!-- Google Fonts-Noto Sans -->
 	<link href='http://fonts.googleapis.com/css?family=Noto+Sans' rel='stylesheet' type='text/css'>
     <!-- Bootstrap -->
-    <link href="bootstrap-3.0.0/dist/css/bootstrap.min.css" rel="stylesheet" media="screen"> 
+    <link href="../bootstrap-3.0.0/dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <!-- Plugin style -->
-    <link href="style.css" rel="stylesheet" media="screen">
+    <link href="../css/style.css" rel="stylesheet" media="screen">
 </head>
 <body>
 	<form class="form-horizontal" role="form">
@@ -18,22 +18,22 @@
 	    <div class="col-lg-offset-2 col-lg-10">
 	      <div class="checkbox">
 	        <label>
-	          <input type="checkbox" id="sendPageVisited"> <span class="etiqueta">Store visited pages</span>
+	          <input type="checkbox" id="sendPageVisited" checked="checked"> <span class="etiqueta">Store visited pages</span>
 	        </label>
 	      </div>
 	      <div class="checkbox">
 	        <label>
-	          <input type="checkbox" id="sendHTMLVisited"> <span class="etiqueta">Store visited pages' HTML code</span>
+	          <input type="checkbox" id="sendHTMLVisited" checked="checked"> <span class="etiqueta">Store visited pages' HTML code</span>
 	        </label>
 	      </div>
-	      <div class="checkbox">
+	      <div class="checkbox" style="display:none">
 	       <label>
-	         <input type="checkbox" id="sendComments"> <span class="etiqueta">Store comments</span>
+	         <input type="checkbox" id="sendComments"> <span class="etiqueta" >Store comments</span>
 	       </label>
 	      </div>
 	      <div class="checkbox">
 	       <label>
-	         <input type="checkbox" id="sendSearch"> <span class="etiqueta">Store searches</span>
+	         <input type="checkbox" id="sendSearch"  checked="checked"> <span class="etiqueta" checked>Store searches</span>
 	       </label>
 	       <br />
 	       <br />
@@ -45,7 +45,7 @@
 	    <div class="col-lg-offset-2 col-lg-10">
 	      <button id="save" class="btn btn-warning">Save</button>
 	      <a href="popup.html" class="btn btn-danger">Back</a>
-	      <img class="imagen2" src="mnopi_logo.png" alt="mnopi">
+	      <img class="imagen2" src="../images/mnopi_logo.png" alt="mnopi">
 	    </div>
 	  </div>
 	</form>
@@ -57,7 +57,7 @@
     <!-- Plugin script -->
     <!-- <script type="text/javascript" src="plugin.js"></script> -->
     <!-- Options script -->
-    <script type="text/javascript" src="options.js"></script>
+    <script type="text/javascript" src="../src/options.js"></script>
 </body>
 </html>
 

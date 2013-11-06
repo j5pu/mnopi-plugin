@@ -67,6 +67,15 @@ var min = 1;
 var max = 2;
 var current = min;
 
+// Server and POST values
+var MNOPI_SERVER_URL = "http://localhost:8000/";
+var POST_SERVICES = {
+    'sendPageVisited' : "sendPageVisited",
+    'sendSearch' : "sendSearch",
+    'sendHtmlVisited' : "sendHtmlVisited"
+};
+
+
 sessionStorage["url"] = "";
 
 function filterHTML(cadena) {
@@ -140,15 +149,11 @@ function sendRequest(url)
 {
 	twitterMain = false;
 	var xhr = new XMLHttpRequest();
-	//var urlRest="http://localhost:8080/RESTInterface/rest/json/novared/sendPageVisited";
-	var urlRest = "http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendPageVisited"; 
-	/*xhr.callback = function(){
-		//alert(alerta);
-	};*/
+	var urlRest = MNOPI_SERVER_URL + POST_SERVICES['sendPageVisited'];
 	xhr.onreadystatechange = readResponse;
 	xhr.open("POST", urlRest, true);
 	xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-	xhr.send("{\"urlPageVisited\":\""+url+"\",\"idUser\":\""+localStorage["email"]+"\"}");
+    xhr.send("{\"url\":\""+url+"\",\"idUser\":\""+localStorage["email"]+"\"}");
 }
 
 function readResponse() {
@@ -167,12 +172,12 @@ function sendRequestHTML(url)
 	var request = new XMLHttpRequest();
 	request.callback = function(){
 		var xhr = new XMLHttpRequest();
-		//var urlRest="http://localhost:8080/RESTInterface/rest/json/novared/sendHTMLVisited";
-		var urlRest = "http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendHTMLVisited"; 
+		//var urlRest="MNOPI_SERVER_URLsendHtmlVisited";
+		var urlRest = MNOPI_SERVER_URL + POST_SERVICES['sendHtmlVisited'];
 		xhr.open("POST", urlRest, true);
-		/*xhr.callback = function(){
+		xhr.callback = function(){
 			alert(decodeURI(alerta));
-		};*/
+		};
 		xhr.onreadystatechange = readResponse;
 		xhr.setRequestHeader("Content-Type", "application/json");
 		cadena = encodeURI(cadena);
@@ -220,11 +225,7 @@ function sendRequestSearch(url,q) { //valido para google, bing, yahoo, duckduckg
 		}
 		//var v = getUrlVars(url);
 		var xhr = new XMLHttpRequest();
-		//var urlRest="http://localhost:8080/RESTInterface/rest/json/novared/sendSearch";
-		var urlRest="http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendSearch";
-		/*xhr.callback = function(){
-				alert(alerta);
-		};*/
+		var urlRest=MNOPI_SERVER_URL + POST_SERVICES['sendSearch'];
 		xhr.onreadystatechange = readResponse;
 		xhr.open("POST", urlRest, true);
 		xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
@@ -478,7 +479,7 @@ function listener(tabId, changeInfo, tab){
 function updateClicks() {
 	if (current == 2)
 	{
-		alert("Goodbye!");
+		alert("Monitorización desactivada");
 		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 			chrome.tabs.sendMessage(tabs[0].id, {greeting: "off"}, function(response) {
 		  	});
@@ -493,7 +494,7 @@ function updateClicks() {
 	else
 	{
 		chrome.browserAction.setBadgeText({text:"X"});
-		alert("Welcome to mnopi");
+		alert("Monitorización activa");
 		chrome.tabs.onUpdated.addListener(listener);
 	}
   	current++;

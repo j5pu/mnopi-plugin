@@ -26,25 +26,27 @@ function restore_options() {
 	var checkHtml = localStorage["html"];
 	var checkComments = localStorage["comments"];
 	var checkSearch = localStorage["search"];
-	
+
+    document.getElementById("sendPageVisited").checked = true;
+
 	if (checkVisited == "true")
 		document.getElementById("sendPageVisited").checked = true;
-	else
+	else if (checkVisited == "false")
 		document.getElementById("sendPageVisited").checked = false;
 	
 	if (checkHtml == "true")
 		document.getElementById("sendHTMLVisited").checked = true;
-	else
+	else if (checkHtml == "false")
 		document.getElementById("sendHTMLVisited").checked = false;
 
 	if (checkComments == "true")
 		document.getElementById("sendComments").checked = true;
-	else
+	else if (checkComments == "false")
 		document.getElementById("sendComments").checked = false;
 	
 	if (checkSearch == "true")
 		document.getElementById("sendSearch").checked = true;
-	else
+	else if (checkSearch == "false")
 		document.getElementById("sendSearch").checked = false;
 }
 

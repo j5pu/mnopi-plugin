@@ -2,6 +2,7 @@ var remembered;
 var email;
 var pass;
 
+MNOPI_SERVER_URL = "http://localhost:8000/"
 
 var bgPage = chrome.extension.getBackgroundPage();
 
@@ -62,15 +63,21 @@ function start()
 	else
 		localStorage["pass"] = "";
 	localStorage["remembered"] = remembered;
-	
-	if ((email == "") || (pass == ""))
-		alert("Please enter a valid email address and password.");
-	else 
-	{
-		window.close();
+
+    var xhr = new XMLHttpRequest();
+	var urlRest = MNOPI_SERVER_URL + "login"; //TODO: poner en constante bonita y tal o en fichero
+	xhr.open("POST", urlRest, false); // síncrono
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+    xhr.send("user_key=" + email + ";password=" + pass)  //TODO: REFACTORIZAR
+    if (xhr.status === 200) {
+        window.close();
 		if (bgPage.current == 1)
 			bgPage.updateClicks();
-	}
+    } else {
+        alert("Error"); //TODO: Bug en chrome con los popups, poner el error en la propia pantalla del login
+    }
+	//xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    //xhr.send("{\"url\":\""+url+"\",\"idUser\":\""+localStorage["email"]+"\"}");
 }
 
 function checkLS(){
