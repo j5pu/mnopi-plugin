@@ -67,15 +67,6 @@ var min = 1;
 var max = 2;
 var current = min;
 
-// Server and POST values
-var MNOPI_SERVER_URL = "http://localhost:8000/";
-var POST_SERVICES = {
-    'sendPageVisited' : "sendPageVisited",
-    'sendSearch' : "sendSearch",
-    'sendHtmlVisited' : "sendHtmlVisited"
-};
-
-
 sessionStorage["url"] = "";
 
 function filterHTML(cadena) {
@@ -462,16 +453,6 @@ if (changeInfo.status == "complete") {
 	}
 }
 
-/*var oauth = ChromeExOAuth.initBackgroundPage({
-  'request_url': <OAuth request URL>,
-  'authorize_url': <OAuth authorize URL>,
-  'access_url': <OAuth access token URL>,
-  'consumer_key': <OAuth consumer key>,
-  'consumer_secret': <OAuth consumer secret>,
-  'scope': <scope of data access, not used by all OAuth providers>,
-  'app_name': <application name, not used by all OAuth providers>
-});*/
-
 function listener(tabId, changeInfo, tab){
 	checkForValidUrl(tabId, changeInfo, tab); 
 };
@@ -479,7 +460,7 @@ function listener(tabId, changeInfo, tab){
 function updateClicks() {
 	if (current == 2)
 	{
-		alert("Monitorización desactivada");
+		alert("Mnopi desactivado. Ya no se guardan los datos");
 		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 			chrome.tabs.sendMessage(tabs[0].id, {greeting: "off"}, function(response) {
 		  	});
@@ -494,7 +475,7 @@ function updateClicks() {
 	else
 	{
 		chrome.browserAction.setBadgeText({text:"X"});
-		alert("Monitorización activa");
+		alert("Monitorizando");
 		chrome.tabs.onUpdated.addListener(listener);
 	}
   	current++;

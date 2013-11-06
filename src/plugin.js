@@ -2,9 +2,11 @@ var remembered;
 var email;
 var pass;
 
-MNOPI_SERVER_URL = "http://localhost:8000/"
-
 var bgPage = chrome.extension.getBackgroundPage();
+
+if (localStorage['visited'] == undefined) localStorage['visited'] = true;
+if (localStorage['html'] == undefined) localStorage['html'] = true;
+if (localStorage['search'] == undefined) localStorage['search'] = true; // TODO : repensar mejor
 
 document.addEventListener('DOMContentLoaded', restore_option);
 
@@ -43,6 +45,7 @@ function restore_option() {
 window.onload = function()
 {
 	checkLS();
+
 	var boton = document.getElementById('signin');
 	//var botonOpt = document.getElementById('opciones');
 	boton.onclick = start;
@@ -65,7 +68,7 @@ function start()
 	localStorage["remembered"] = remembered;
 
     var xhr = new XMLHttpRequest();
-	var urlRest = MNOPI_SERVER_URL + "login"; //TODO: poner en constante bonita y tal o en fichero
+	var urlRest = MNOPI_SERVER_URL + POST_SERVICES['login']; //TODO: poner en constante bonita y tal o en fichero
 	xhr.open("POST", urlRest, false); // síncrono
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
     xhr.send("user_key=" + email + ";password=" + pass)  //TODO: REFACTORIZAR
@@ -78,6 +81,7 @@ function start()
     }
 	//xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     //xhr.send("{\"url\":\""+url+"\",\"idUser\":\""+localStorage["email"]+"\"}");
+    //TODO: Poner un timer o algo para cuando haya timeout
 }
 
 function checkLS(){
