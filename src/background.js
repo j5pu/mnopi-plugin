@@ -47,7 +47,7 @@ statusCodes[504] = 'Gateway Time-out';
 statusCodes[505] = 'HTTP Version not supported';
 
 
-var actualUrl;
+var currentUrl;
 var twitterMain = false;
 var cadena;
 var alerta;
@@ -399,63 +399,61 @@ function readResponse5b(){
 	}
 }
 
-function checkForValidUrl(tabId, changeInfo, tab) {
-if (changeInfo.status == "complete") {
-	console.log(changeInfo.url);
-		//alert(tab.url); //
-		var a = sessionStorage['url'];
-		actualUrl = tab.url;
-		if ((tab.url == a) && (!twitterMain))
-		{
-			//alert("recargaste bribon!"); //Recarga de página
-		}
-		else 
-		{
+function sendInformation(tabId, changeInfo, tab) {
+
+    if (changeInfo.status == "complete") {
+        //console.log(changeInfo.url);
+		var previousUrl = sessionStorage['url'];
+		currentUrl = tab.url;
+
+        // Upon refreshing no info is sent
+        // TODO: Review twitterMain behaviour
+		if ((tab.url != previousUrl) || (twitterMain))
+        {
+            // Avoid chrome pages
 			if ((tab.url.indexOf("chrome://") == -1) && (tab.url.indexOf("chrome-devtools://") == -1))
 			{
 		 		sessionStorage['url'] = tab.url;
 		 		if (localStorage["visited"] == "true")
+                {
 		 			try {
 		 				sendRequest(tab.url);
 		 			} catch (e1) {
 		 				console.log("Error en método SendPageVisited: " + e1);
-		 			} finally {
-				 		if (localStorage["html"] == "true")
-				 			try {
-								sendRequestHTML(tab.url);
-							} catch (e2) {
-				 				console.log("Error en método SendHTMLVisited: " + e2);
-				 		} finally {
-							if (localStorage["search"] == "true")
-								try {
-									sendRequestSearch(tab.url);
-								} catch (e3) {
-					 				console.log("Error en método SendSearch: " + e3);
-					 		} finally {
-								if (localStorage["comments"] == "true")
-								{
-									try {
-										if (tab.url.indexOf("https://www.facebook.com/") > -1)
-											chrome.tabs.executeScript(null, {file: "observer.js"});
-										else if (tab.url.indexOf("https://twitter.com/") > -1)
-											chrome.tabs.executeScript(null, {file: "observerT.js"});
-										sendRequestComments(tab.url);
-									} catch (e4) {
-						 				console.log("Error en método SendComments: " + e4);
-						 			}
-								}
-							}
-						}
-					}
+                    }
+                }
+                if (localStorage["html"] == "true")
+                {
+                    try {
+                        sendRequestHTML(tab.url);
+                    } catch (e2) {
+                        console.log("Error en método SendHTMLVisited: " + e2);
+                    }
+                }
+                if (localStorage["search"] == "true")
+                {
+                    try {
+                        sendRequestSearch(tab.url);
+                    } catch (e3) {
+                        console.log("Error en método SendSearch: " + e3);
+                    }
+                }
+                if (localStorage["comments"] == "true")
+                {
+                    try {
+                        if (tab.url.indexOf("https://www.facebook.com/") > -1)
+                            chrome.tabs.executeScript(null, {file: "observer.js"});
+                        else if (tab.url.indexOf("https://twitter.com/") > -1)
+                            chrome.tabs.executeScript(null, {file: "observerT.js"});
+                        sendRequestComments(tab.url);
+                    } catch (e4) {
+                        console.log("Error en método SendComments: " + e4);
+                    }
+                }
 			}
-				
 		}
 	}
 }
-
-function listener(tabId, changeInfo, tab){
-	checkForValidUrl(tabId, changeInfo, tab); 
-};
 
 function updateClicks() {
 	if (current == 2)
@@ -466,7 +464,7 @@ function updateClicks() {
 		  	});
 		});
 		chrome.browserAction.setBadgeText({text:""});
-		chrome.tabs.onUpdated.removeListener(listener);
+		chrome.tabs.onUpdated.removeListener(sendInformation);
 		current++;
 	  	if (current > max)
 	    	current = min;
@@ -476,7 +474,7 @@ function updateClicks() {
 	{
 		chrome.browserAction.setBadgeText({text:"X"});
 		alert("Monitorizando");
-		chrome.tabs.onUpdated.addListener(listener);
+		chrome.tabs.onUpdated.addListener(sendInformation);
 	}
   	current++;
 
