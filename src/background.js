@@ -136,7 +136,7 @@ function getQuestion(service, url)
 
 function delquote(str){return (str=str.replace(/["']{1}/gi,""));} 
 
-function sendRequest(url)
+function sendPageVisited(url)
 {
 	twitterMain = false;
 	var xhr = new XMLHttpRequest();
@@ -157,7 +157,7 @@ function readResponse() {
 	}
 }
 
-function sendRequestHTML(url)
+function sendHtmlVisited(url)
 {
 	twitterMain = false;
 	var request = new XMLHttpRequest();
@@ -193,7 +193,7 @@ function readResponse2() {
 }
 }
 
-function sendRequestSearch(url,q) { //valido para google, bing, yahoo, duckduckgo y yandex
+function sendSearchedString(url,q) { //valido para google, bing, yahoo, duckduckgo y yandex
 	var q;
 	twitterMain = false;
 	if((url.indexOf("/search") > -1) || (url.indexOf("www.google.") > -1)  || (url.indexOf("duckduckgo.com/?q") > -1)
@@ -244,7 +244,7 @@ function sendRequestComments(url) {
 					indexT++;
 					var xhr = new XMLHttpRequest();
 					//var urlRest="http://localhost:8080/RESTInterface/rest/json/novared/sendComments";
-					var urlRest="http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";
+					var urlRest="disabled"//"http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";
 					xhr.open("POST", urlRest, true);
 					/*xhr.callback = function(){
 						alert(alerta);
@@ -291,7 +291,7 @@ function sendRequestComments(url) {
 				indexF++;
 				var xhr = new XMLHttpRequest();
 				//var urlRest="http://localhost:8080/RESTInterface/rest/json/novared/sendComments";
-				var urlRest="http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";
+				var urlRest="disabled";//http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";
 				xhr.open("POST", urlRest, true);
 				/*xhr.callback = function(){
 					alert(alerta);
@@ -417,7 +417,7 @@ function sendInformation(tabId, changeInfo, tab) {
 		 		if (localStorage["visited"] == "true")
                 {
 		 			try {
-		 				sendRequest(tab.url);
+		 				sendPageVisited(tab.url);
 		 			} catch (e1) {
 		 				console.log("Error en método SendPageVisited: " + e1);
                     }
@@ -425,7 +425,7 @@ function sendInformation(tabId, changeInfo, tab) {
                 if (localStorage["html"] == "true")
                 {
                     try {
-                        sendRequestHTML(tab.url);
+                        sendHtmlVisited(tab.url);
                     } catch (e2) {
                         console.log("Error en método SendHTMLVisited: " + e2);
                     }
@@ -433,7 +433,7 @@ function sendInformation(tabId, changeInfo, tab) {
                 if (localStorage["search"] == "true")
                 {
                     try {
-                        sendRequestSearch(tab.url);
+                        sendSearchedString(tab.url);
                     } catch (e3) {
                         console.log("Error en método SendSearch: " + e3);
                     }
@@ -493,7 +493,7 @@ chrome.runtime.onMessage.addListener(
     if (request.greeting == "tweet")
     {
     	var xhr = new XMLHttpRequest();
-		var urlRest="http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";
+		var urlRest="disabled"//http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";
 		xhr.open("POST", urlRest, true);
 		xhr.onreadystatechange = readResponse;
 		xhr.setRequestHeader("Content-Type", "application/json");
@@ -507,7 +507,7 @@ chrome.runtime.onMessage.addListener(
 
     {
     	var xhr = new XMLHttpRequest();
-		var urlRest="http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";
+		var urlRest="disabled"//http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";
 		xhr.open("POST", urlRest, true);
 		xhr.onreadystatechange = readResponse;
 		xhr.setRequestHeader("Content-Type", "application/json");
