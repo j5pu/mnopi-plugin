@@ -69,38 +69,12 @@ var current = min;
 
 sessionStorage["url"] = "";
 
-function filterHTML(cadena) {
-	var string = cadena.match(/%3Cstyle(.*?)%3C\/style%3E/gm);
-	if (string != null)
-	{	
-		for(var i=0;i<string.length;i++)
-			cadena = cadena.replace(string[i],'');
-		string = cadena.match(/%3Cscript(.*?)%3C\/script%3E/gm);
-		if (string != null)
-			for(var i=0;i<string.length;i++)
-				cadena = cadena.replace(string[i],'');
-	}
-	return cadena;
-}
-
-function getUrlVars(href) //para bing
-{
-    var vars = [], hash;
-    var hashes = href.slice(href.indexOf('?') + 1).split('&'); //toma todo lo que hay entre ? y # y lo va troceando
-    for(var i = 0; i < hashes.length; i++)
-    {
-        hash = hashes[i].split('=');
-        vars.push(hash[0]);
-        vars[hash[0]] = hash[1];
-    }
-    return vars;
-}
 
 function getQuestion(service, url)
 {
 	var keyword;
 	var v, q;
-	
+
 	switch(service)
 	{
 		case "google":
@@ -128,9 +102,9 @@ function getQuestion(service, url)
 				if (url.indexOf("yahoo") > -1)
 					q = v.p;
 				else
-					q = v.q;	
+					q = v.q;
 			return q;
-	
+
 	}
 }
 
@@ -171,14 +145,18 @@ function sendHtmlVisited(url)
 		};
 		xhr.onreadystatechange = readResponse;
 		xhr.setRequestHeader("Content-Type", "application/json");
-		cadena = encodeURI(cadena);
-		cadena = filterHTML(cadena);
-		//console.log(decodeURI(cadena));
-		//cadena = "blabla";//solo para pruebas
-		xhr.send("{\"url\":\""+url+"\",\"htmlString\":\""+cadena+"\",\"idUser\":\""+localStorage["email"]+"\"}");
-		
+
+        htmlCode = filterHTML(htmlCode, "script");
+        htmlCode = filterHTML(htmlCode, "style");
+
+        var htmlVisited = new Object();
+        htmlVisited.url = url;
+        htmlVisited.htmlString = htmlCode;
+        htmlVisited.idUser = localStorage["email"];
+        var jsonText = JSON.stringify(htmlVisited);
+        xhr.send(jsonText);
 	};
-	request.open("GET", url, true);
+	request.open("GET", url, true); //TODO: quiza este get pueda apañarse
 	request.send(null);
 	request.onreadystatechange = readResponse2;
 }
@@ -188,7 +166,7 @@ function readResponse2() {
       if(this.status == 0) {
         throw('Status = 0');
       }
-	cadena = this.responseText; //aqui esta el html de la web --> hacer un post con este dato
+	htmlCode = this.responseText; //aqui esta el html de la web --> hacer un post con este dato
 	this.callback();
 }
 }
