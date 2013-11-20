@@ -35,3 +35,11 @@ function getUrlVars(href) //para bing
     }
     return vars;
 }
+
+/**
+ * TODO: ver qué hace con calma
+ * @param str
+ * @returns {XML}
+ */
+function delquote(str){return (str=str.replace(/["']{1}/gi,""));}
+

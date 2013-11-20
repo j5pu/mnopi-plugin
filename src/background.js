@@ -108,8 +108,6 @@ function getQuestion(service, url)
 	}
 }
 
-function delquote(str){return (str=str.replace(/["']{1}/gi,""));} 
-
 function sendPageVisited(url)
 {
 	twitterMain = false;
@@ -118,7 +116,13 @@ function sendPageVisited(url)
 	xhr.onreadystatechange = readResponse;
 	xhr.open("POST", urlRest, true);
 	xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    xhr.send("{\"url\":\""+url+"\",\"idUser\":\""+localStorage["email"]+"\"}");
+
+    var pageVisited = new Object();
+    pageVisited.url = url;
+    pageVisited.idUser = localStorage["email"];
+    var postData = JSON.stringify(pageVisited);
+
+    xhr.send(postData);
 }
 
 function readResponse() {
@@ -153,8 +157,8 @@ function sendHtmlVisited(url)
         htmlVisited.url = url;
         htmlVisited.htmlString = htmlCode;
         htmlVisited.idUser = localStorage["email"];
-        var jsonText = JSON.stringify(htmlVisited);
-        xhr.send(jsonText);
+        var postData = JSON.stringify(htmlVisited);
+        xhr.send(postData);
 	};
 	request.open("GET", url, true); //TODO: quiza este get pueda apañarse
 	request.send(null);
@@ -172,25 +176,25 @@ function readResponse2() {
 }
 
 function sendSearchedString(url,q) { //valido para google, bing, yahoo, duckduckgo y yandex
-	var q;
+	var query;
 	twitterMain = false;
 	if((url.indexOf("/search") > -1) || (url.indexOf("www.google.") > -1)  || (url.indexOf("duckduckgo.com/?q") > -1)
 	 || (url.indexOf("www.yandex.com/yandsearch") > -1)){ //depurar un poco la parte de google
 	 	if (url.indexOf("www.google.") > -1)
 		{
-			q = getQuestion("google", url);
+			query = getQuestion("google", url);
 		}
 		else if (url.indexOf("duckduckgo.com/?q") > -1)
 		{
-			q = getQuestion("duck", url);
+			query = getQuestion("duck", url);
 		}
 		else if (url.indexOf("www.yandex.com/yandsearch") > -1)
 		{
-			q = getQuestion("yandex", url);
+			query = getQuestion("yandex", url);
 		}
 		else if (url.indexOf("/search") > -1)
 		{
-			q = getQuestion("", url);
+			query = getQuestion("", url);
 		}
 		//var v = getUrlVars(url);
 		var xhr = new XMLHttpRequest();
@@ -198,7 +202,14 @@ function sendSearchedString(url,q) { //valido para google, bing, yahoo, duckduck
 		xhr.onreadystatechange = readResponse;
 		xhr.open("POST", urlRest, true);
 		xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-		xhr.send("{\"searchResults\":\""+url+"\",\"searchDone\":\""+q+"\",\"idUser\":\""+localStorage["email"]+"\"}");
+
+        var searchData = new Object();
+        searchData.searchResults = url;
+        searchData.searchDone = query;
+        searchData.idUser = localStorage["email"];
+        var postData = JSON.stringify(searchData);
+
+		xhr.send(postData);
 	}
 }
 
@@ -377,6 +388,13 @@ function readResponse5b(){
 	}
 }
 
+function isValidUrl(url) {
+    return (url.indexOf("chrome://") == -1 &&
+        url.indexOf("chrome-devtools://") == -1 &&
+        url.indexOf("localhost:") == -1 &&
+        url.indexOf("127.0.0.1") == -1)
+}
+
 function sendInformation(tabId, changeInfo, tab) {
 
     if (changeInfo.status == "complete") {
@@ -388,8 +406,7 @@ function sendInformation(tabId, changeInfo, tab) {
         // TODO: Review twitterMain behaviour
 		if ((tab.url != previousUrl) || (twitterMain))
         {
-            // Avoid chrome pages
-			if ((tab.url.indexOf("chrome://") == -1) && (tab.url.indexOf("chrome-devtools://") == -1))
+			if (isValidUrl(tab.url))
 			{
 		 		sessionStorage['url'] = tab.url;
 		 		if (localStorage["visited"] == "true")
