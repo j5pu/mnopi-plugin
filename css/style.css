@@ -24,6 +24,10 @@ body {
 	margin-left:-6%;
 }
 
+.error {
+    color: red;
+}
+
 .imagen {
 	margin-left: 48%;
 	margin-top: -17%;

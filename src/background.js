@@ -69,7 +69,6 @@ var current = min;
 
 sessionStorage["url"] = "";
 
-
 function getQuestion(service, url)
 {
 	var keyword;
@@ -141,7 +140,6 @@ function sendHtmlVisited(url)
 	var request = new XMLHttpRequest();
 	request.callback = function(){
 		var xhr = new XMLHttpRequest();
-		//var urlRest="MNOPI_SERVER_URLsendHtmlVisited";
 		var urlRest = MNOPI_SERVER_URL + POST_SERVICES['sendHtmlVisited'];
 		xhr.open("POST", urlRest, true);
 		xhr.callback = function(){
@@ -182,7 +180,7 @@ function sendSearchedString(url,q) { //valido para google, bing, yahoo, duckduck
 	 || (url.indexOf("www.yandex.com/yandsearch") > -1)){ //depurar un poco la parte de google
 	 	if (url.indexOf("www.google.") > -1)
 		{
-			query = getQuestion("google", url);
+			query = getQuestion("google", url).replace(/\+/g, " ")
 		}
 		else if (url.indexOf("duckduckgo.com/?q") > -1)
 		{
@@ -210,7 +208,7 @@ function sendSearchedString(url,q) { //valido para google, bing, yahoo, duckduck
         var postData = JSON.stringify(searchData);
 
 		xhr.send(postData);
-	}
+    }
 }
 
 function sendRequestComments(url) {
@@ -428,7 +426,7 @@ function sendInformation(tabId, changeInfo, tab) {
                 if (localStorage["search"] == "true")
                 {
                     try {
-                        sendSearchedString(tab.url);
+                        sendSearchedString(decodeURIComponent(tab.url));
                     } catch (e3) {
                         console.log("Error en método SendSearch: " + e3);
                     }
@@ -468,7 +466,7 @@ function updateClicks() {
 	else
 	{
 		chrome.browserAction.setBadgeText({text:"X"});
-		alert("Monitorizando");
+//		alert("Monitorizando");
 		chrome.tabs.onUpdated.addListener(sendInformation);
 	}
   	current++;
@@ -480,8 +478,12 @@ function updateClicks() {
 
 chrome.browserAction.setBadgeText({text:""});
 
-
-
+/* Auto login if the user selected to be remembered */
+//TODO: se esta guardando la pass en claro...nefasto.
+//TODO: este sistema de guardar el login es muy cutre, habría que cambiar el login entero del plugin
+if (localStorage['remembered'] && localStorage["email"]){
+    updateClicks()
+}
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -498,8 +500,8 @@ chrome.runtime.onMessage.addListener(
 			setTimeout(function() {},500);
 			localStorage[request.variable] = "stored";
 		}
-    } else if (request.greeting == "comment") 
-
+    }
+    else if (request.greeting == "comment")
     {
     	var xhr = new XMLHttpRequest();
 		var urlRest="disabled"//http://193.144.229.245:9760/RESTInterface/rest/json/novared/sendComments";

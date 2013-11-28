@@ -16,6 +16,8 @@ document.getElementById("remember").addEventListener('click', function(){
 	localStorage["pass"] = document.getElementById("inputPassword1").value;
 }, true);
 
+/* Auto login if the user selected to be remembered */
+//chrome.runtime.onStartup.addListener(autologin)
 
 function restore_option() {
 	var checkRemember = localStorage["remembered"];
@@ -47,9 +49,7 @@ window.onload = function()
 	checkLS();
 
 	var boton = document.getElementById('signin');
-	//var botonOpt = document.getElementById('opciones');
 	boton.onclick = start;
-	//botonOpt.onclick = checkRem;
 	if (bgPage.current == 2)
 		bgPage.updateClicks();		
 }
@@ -59,7 +59,7 @@ function start()
 	remembered = document.getElementById("remember").checked;
 	email = document.getElementById("inputEmail1").value;
 	pass = document.getElementById("inputPassword1").value;
-	
+
 	localStorage["email"] = email;
 	if (remembered)
 		localStorage["pass"] = pass;
@@ -67,21 +67,39 @@ function start()
 		localStorage["pass"] = "";
 	localStorage["remembered"] = remembered;
 
-    var xhr = new XMLHttpRequest();
-	var urlRest = MNOPI_SERVER_URL + POST_SERVICES['login']; //TODO: poner en constante bonita y tal o en fichero
-	xhr.open("POST", urlRest, false); // síncrono
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    xhr.send("user_key=" + email + ";password=" + pass)  //TODO: REFACTORIZAR
-    if (xhr.status === 200) {
-        window.close();
-		if (bgPage.current == 1)
-			bgPage.updateClicks();
-    } else {
-        alert("Error"); //TODO: Bug en chrome con los popups, poner el error en la propia pantalla del login
-    }
-	//xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-    //xhr.send("{\"url\":\""+url+"\",\"idUser\":\""+localStorage["email"]+"\"}");
-    //TODO: Poner un timer o algo para cuando haya timeout
+    var jqxhr = $.ajax({
+        url: MNOPI_SERVER_URL + POST_SERVICES['login'],
+        type: 'post',
+        data: "user_key=" + email + ";password=" + pass + ";version=" + PLUGIN_VERSION,
+        timeout: 5000,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    }).done(function(response) {
+            if (response == "ok"){
+                $('#errors').css({'display':'none'})
+                window.close();
+                if (bgPage.current == 1){
+                    bgPage.updateClicks();
+                }
+            } else if (response == "version_error"){
+                $('#errors').css({'display':''})
+                $('#error_text').text("Download the new plugin version! ")
+            } else {
+                $('#errors').css({'display':''})
+                $('#error_text').text("Incorrect user/password ")
+            }
+        }
+    ).fail(function(xhr, status, err) {
+            if (status == 'timeout') {
+                $('#errors').css({'display':''})
+                $('#error_text').text("Timeout error ")
+            } else {
+                $('#errors').css({'display':''})
+                $('#error_text').text("Error in server ")
+            }
+    });
+
+    return false;
+
 }
 
 function checkLS(){
