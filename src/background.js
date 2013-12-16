@@ -390,13 +390,14 @@ function isValidUrl(url) {
     return (url.indexOf("chrome://") == -1 &&
         url.indexOf("chrome-devtools://") == -1 &&
         url.indexOf("localhost:") == -1 &&
-        url.indexOf("127.0.0.1") == -1)
+        url.indexOf("127.0.0.1") == -1 &&
+        url.slice(-4) != ".pdf")
 }
 
 function sendInformation(tabId, changeInfo, tab) {
 
     if (changeInfo.status == "complete") {
-        //console.log(changeInfo.url);
+
 		var previousUrl = sessionStorage['url'];
 		currentUrl = tab.url;
 
