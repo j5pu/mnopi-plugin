@@ -27,8 +27,6 @@ function restore_options() {
 	var checkComments = localStorage["comments"];
 	var checkSearch = localStorage["search"];
 
-    document.getElementById("sendPageVisited").checked = true;
-
 	if (checkVisited == "true")
 		document.getElementById("sendPageVisited").checked = true;
 	else if (checkVisited == "false")
