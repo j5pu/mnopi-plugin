@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+	<!-- Google Fonts-Noto Sans -->
+	<link href='http://fonts.googleapis.com/css?family=Noto+Sans' rel='stylesheet' type='text/css'>
+    <!-- Bootstrap -->
+    <link href="../bootstrap-3.0.0/dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <!-- Plugin style -->
+    <link href="../css/style.css" rel="stylesheet" media="screen">
+    <!-- Jquery -->
+    <script src="../src/vendor/jquery.min.js"></script>
+</head>
+<body>
+	<form id="formulario" class="form-horizontal" role="form">
+
+      <div class="form-group" id="errors" style="display: none">
+          <div class="col-lg-offset-2 col-lg-10">
+              Conectado con el servidor de Mnopi
+          </div>
+      </div>
+	  <div class="form-group">
+	    <div class="col-lg-offset-2 col-lg-10">
+	      <button type="submit" id="logout" class="btn btn-warning" >Log out</button>
+	      <!--<button id="opciones" class="btn btn-danger" >Options</button>-->
+	      <a href="options.html" class="btn btn-danger" id="opciones">Options</a>
+	      <img class="imagen" src="../images/mnopi_logo.png" alt="mnopi">
+	    </div>
+	  </div>
+	</form>
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins)
+    <script src="bootstrap-3.0.0/js/tests/vendor/jquery.js"></script> &ndash;&gt; -->
+    <!-- Include all compiled plugins (below), or include individual files as needed
+    <script src="bootstrap-3.0.0/dist/js/bootstrap.min.js"></script> -->
+    <script type="text/javascript" src="../src/connection.js"></script>
+    <!--<script type="text/javascript" src="../src/options.js"></script>-->
+    <script type="text/javascript" src="../src/logout.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION=alpha2
+VERSION=alpha3
 
 cp -r !(prepare_plugin.sh) ../extension_mnopi
 

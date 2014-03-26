@@ -1,55 +1,20 @@
-// Status codes as per rfc2616
-var statusCodes = new Array();
-// Informational 1xx
-statusCodes[100] = 'Continue';
-statusCodes[101] = 'Switching Protocols';
-// Successful 2xx
-statusCodes[200] = 'OK';
-statusCodes[201] = 'Created';
-statusCodes[202] = 'Accepted';
-statusCodes[203] = 'Non-Authoritative Information';
-statusCodes[204] = 'No Content';
-statusCodes[205] = 'Reset Content';
-statusCodes[206] = 'Partial Content';
-// Redirection 3xx
-statusCodes[300] = 'Multiple Choices';
-statusCodes[301] = 'Moved Permanently';
-statusCodes[302] = 'Found';
-statusCodes[303] = 'See Other';
-statusCodes[304] = 'Not Modified';
-statusCodes[305] = 'Use Proxy';
-statusCodes[307] = 'Temporary Redirect';
-// Client Error 4xx
-statusCodes[400] = 'Bad Request';
-statusCodes[401] = 'Unauthorized';
-statusCodes[402] = 'Payment Required';
-statusCodes[403] = 'Forbidden';
-statusCodes[404] = 'Not Found';
-statusCodes[405] = 'Method Not Allowed';
-statusCodes[406] = 'Not Acceptable';
-statusCodes[407] = 'Proxy Authentication Required';
-statusCodes[408] = 'Request Time-out';
-statusCodes[409] = 'Conflict';
-statusCodes[410] = 'Gone';
-statusCodes[411] = 'Length Required';
-statusCodes[412] = 'Precondition Failed';
-statusCodes[413] = 'Request Entity Too Large';
-statusCodes[414] = 'Request-URI Too Long';
-statusCodes[415] = 'Unsupported Media Type';
-statusCodes[416] = 'Requested range not satisfiable';
-statusCodes[417] = 'Expectation Failed';
-// Server Error 5xx
-statusCodes[500] = 'Internal Server Error';
-statusCodes[501] = 'Not Implemented';
-statusCodes[502] = 'Bad Gateway';
-statusCodes[503] = 'Service Unavailable';
-statusCodes[504] = 'Gateway Time-out';
-statusCodes[505] = 'HTTP Version not supported';
+$(function(){
+    // Try automatic login
+    if (localStorage['session_token'] != "" && localStorage['user'] != ""){
+        login(localStorage['user'], localStorage['session_token'], true)
+    }
+
+    // Set default options if undefined
+    if (localStorage['visited'] == undefined) localStorage['visited'] = true;
+    if (localStorage['html'] == undefined) localStorage['html'] = true;
+    if (localStorage['search'] == undefined) localStorage['search'] = true;
+
+    sessionStorage["url"] = "";
+})
 
 
-var currentUrl;
+//TODO: REFACTORIZAR VARIABLES GLOBALES DE LA MUERTE
 var twitterMain = false;
-var cadena;
 var alerta;
 var userName;
 var tweets;
@@ -61,116 +26,114 @@ var numComments = 3; //solo es posible tomar los 3 ultimos
 var indexT = 0;
 var indexF = 0;
 var nuloT = false;
-var nuloF = false;
 
-var min = 1;
-var max = 2;
-var current = min;
 
-sessionStorage["url"] = "";
+function login_response(response){
 
-function getQuestion(service, url)
+    if (response.result == "OK"){
+
+        localStorage['session_token'] = response.session_token;
+        localStorage['user_resource'] = response.user_resource;
+
+		chrome.tabs.onUpdated.addListener(sendInformation);
+
+        closeChromePopup();
+        chrome.browserAction.setIcon({'path': '/images/icon.png'});
+        chrome.browserAction.setPopup({'popup': "/html/logout.html"});
+        showNotification("Monitorizando", "Se ha conectado con el servidor de mnopi", "/images/icon48.png", 4000);
+
+    } else if (response.reason == "CLIENT_OUTDATED" || response.reason == "CLIENT_ERROR"){
+        showErrorOnPopup("Download the new plugin version!");
+    } else if (response.reason == "INCORRECT_USER_PASSWORD"){
+        showErrorOnPopup("Incorrect user/password");
+    } else if (response.reason == "UNEXPECTED_SESSION"){
+        // Most probably the session has expired. Login must be performed manually.
+        return;
+    }
+
+}
+
+function login_err(xhr, status, err){
+    if (status == 'timeout'){
+        showErrorOnPopup("Timeout error");
+    } else {
+        showErrorOnPopup("Error in server ")
+    }
+}
+
+function login(username, key, renew) {
+
+    var login_token = new Object();
+    login_token.username = username;
+    login_token.key = key;
+
+    if (renew == true){
+        login_token.renew = true;
+    }
+
+    login_token.client = PLUGIN_VERSION;
+
+    localStorage['user'] = username;
+    ajaxRequest(POST_SERVICES['login'], login_token, login_response, login_err)
+
+}
+
+function logout(){
+
+    localStorage['user'] = "";
+    localStorage['session_token'] = "";
+
+    chrome.tabs.onUpdated.removeListener(sendInformation);
+
+    showNotification("Mnopi desactivado", "Ya no se monitorizan los datos", "/images/icon_bw_48.png", 4000);
+    chrome.browserAction.setIcon({'path': '/images/icon_bw_19.png'});
+    chrome.browserAction.setPopup({'popup': "/html/login.html"})
+
+}
+
+function pageVisitedResponse(response){
+    //TODO
+    return;
+}
+
+function pageVisitedError(response){
+    //TODO
+    return;
+}
+
+function sendPageVisited(tabId, url, sendHtml)
 {
-	var keyword;
-	var v, q;
+    if (sendHtml){
+        chrome.tabs.sendMessage(tabId, {'content': "getHtml"}, function(response) {
+                var pageVisited = new Object();
+                pageVisited.user = localStorage["user_resource"];
+                pageVisited.url = url;
+                pageVisited.html_code = response.htmlCode;
+                pageVisited.date = $.format.date(new Date(), "yyyy-MM-dd HH:mm:ss");
 
-	switch(service)
-	{
-		case "google":
-			if (url.indexOf("#") > -1){
-				keyword = url.match(/#q=(.*)/);
-				return keyword[1];
-			}
-			else {
-				v = getUrlVars(url);
-				if (v != url)
-					q = v.q;
-				return q;
-			}
-		case "duck":
-			keyword = url.match(/\?q=(.*)/);
-			return keyword[1];
-		case "yandex":
-			v = getUrlVars(url);
-			if (v != url)
-				q = v.text;
-			return q;
-		default: //bing y yahoo
-			v = getUrlVars(url);
-			if (v != url)
-				if (url.indexOf("yahoo") > -1)
-					q = v.p;
-				else
-					q = v.q;
-			return q;
+                ajaxAuthRequest(POST_SERVICES["sendPageVisited"], pageVisited, localStorage['session_token'],
+                    pageVisitedResponse, pageVisitedError)
+            }
+      )
+    } else {
+        var pageVisited = new Object();
+        pageVisited.user = localStorage["user_resource"];
+        pageVisited.url = url;
+        pageVisited.date = $.format.date(new Date(), "yyyy-MM-dd HH:mm:ss");
 
-	}
+        ajaxAuthRequest(POST_SERVICES["sendPageVisited"], pageVisited, localStorage["session_token"],
+            pageVisitedResponse, pageVisitedError)
+    }
 }
 
-function sendPageVisited(url)
-{
-	twitterMain = false;
-	var xhr = new XMLHttpRequest();
-	var urlRest = MNOPI_SERVER_URL + POST_SERVICES['sendPageVisited'];
-	xhr.onreadystatechange = readResponse;
-	xhr.open("POST", urlRest, true);
-	xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-
-    var pageVisited = new Object();
-    pageVisited.url = url;
-    pageVisited.idUser = localStorage["email"];
-    var postData = JSON.stringify(pageVisited);
-
-    xhr.send(postData);
+function searchResponse(response){
+    //TODO
+    return;
 }
 
-function readResponse() {
-	if (this.readyState == 4) {
-		if(this.status == 0) {
-			throw('Status = 0');
-		}
-  		alerta = this.status+' '+statusCodes[this.status]+'</br>'+this.responseText;
-  		//this.callback();
-	}
-}
-
-function sendHtmlVisited(url)
-{
-	twitterMain = false;
-	var request = new XMLHttpRequest();
-	request.callback = function(){
-		var xhr = new XMLHttpRequest();
-		var urlRest = MNOPI_SERVER_URL + POST_SERVICES['sendHtmlVisited'];
-		xhr.open("POST", urlRest, true);
-		xhr.callback = function(){
-			alert(decodeURI(alerta));
-		};
-		xhr.onreadystatechange = readResponse;
-		xhr.setRequestHeader("Content-Type", "application/json");
-
-        htmlCode = filterHTML(htmlCode, "script");
-        htmlCode = filterHTML(htmlCode, "style");
-
-        var htmlVisited = new Object();
-        htmlVisited.url = url;
-        htmlVisited.htmlString = htmlCode;
-        htmlVisited.idUser = localStorage["email"];
-        var postData = JSON.stringify(htmlVisited);
-        xhr.send(postData);
-	};
-	request.open("GET", url, true); //TODO: quiza este get pueda apañarse
-	request.send(null);
-	request.onreadystatechange = readResponse2;
-}
-
-function readResponse2() {
-  if (this.readyState == 4) {
-      if(this.status == 0) {
-        throw('Status = 0');
-      }
-	htmlCode = this.responseText; //aqui esta el html de la web --> hacer un post con este dato
-	this.callback();
-}
+function searchError(response){
+    //TODO
+    return;
 }
 
 function sendSearchedString(url,q) { //valido para google, bing, yahoo, duckduckgo y yandex
@@ -194,20 +157,16 @@ function sendSearchedString(url,q) { //valido para google, bing, yahoo, duckduck
 		{
 			query = getQuestion("", url);
 		}
-		//var v = getUrlVars(url);
-		var xhr = new XMLHttpRequest();
-		var urlRest=MNOPI_SERVER_URL + POST_SERVICES['sendSearch'];
-		xhr.onreadystatechange = readResponse;
-		xhr.open("POST", urlRest, true);
-		xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
 
         var searchData = new Object();
-        searchData.searchResults = url;
-        searchData.searchDone = query;
-        searchData.idUser = localStorage["email"];
-        var postData = JSON.stringify(searchData);
+        searchData.search_results = url;
+        searchData.search_query = query;
+        searchData.user = localStorage["user_resource"];
+        searchData.date = $.format.date(new Date(), "yyyy-MM-dd HH:mm:ss");
 
-		xhr.send(postData);
+        ajaxAuthRequest(POST_SERVICES["sendSearch"], searchData,localStorage["session_token"],
+            searchResponse, searchError);
+
     }
 }
 
@@ -304,7 +263,7 @@ function readResponse3() {
       if(this.status == 0) {
         throw('Status = 0');
       }	
-		cadena = this.responseText; //aqui esta el html de la web --> hacer un post con este dato
+		var cadena = this.responseText; //aqui esta el html de la web --> hacer un post con este dato
 		var testRE = cadena.match(/<span id="username_path">(.*)/);
 		if (testRE == null)
 			nuloT = true;
@@ -326,18 +285,15 @@ function readResponse3b() {
       if(this.status == 0) {
         throw('Status = 0');
       }
-		cadena = this.responseText; //aqui esta el html de la web --> hacer un post con este dato
+		var cadena = this.responseText; //aqui esta el html de la web --> hacer un post con este dato
 		var testRE = cadena.match(/http:\/\/www.facebook.com\/<strong>(.*)/);
-		/*if (testRE == null)
-			nuloF = true;
-		else
-		{*/
-			var testRE2 = testRE[1].match(/<\/strong>(.*)/);
-			userName = testRE[1];
-			var cadenAux = testRE2[0];
-			userName = userName.replace(cadenAux,'');
-			userName = userName.toLowerCase();
-		//}
+
+        var testRE2 = testRE[1].match(/<\/strong>(.*)/);
+        userName = testRE[1];
+        var cadenAux = testRE2[0];
+        userName = userName.replace(cadenAux,'');
+        userName = userName.toLowerCase();
+
 		this.callback();
 	}
 }
@@ -386,20 +342,12 @@ function readResponse5b(){
 	}
 }
 
-function isValidUrl(url) {
-    return (url.indexOf("chrome://") == -1 &&
-        url.indexOf("chrome-devtools://") == -1 &&
-        url.indexOf("localhost:") == -1 &&
-        url.indexOf("127.0.0.1") == -1 &&
-        url.slice(-4) != ".pdf")
-}
 
 function sendInformation(tabId, changeInfo, tab) {
 
     if (changeInfo.status == "complete") {
 
 		var previousUrl = sessionStorage['url'];
-		currentUrl = tab.url;
 
         // Upon refreshing no info is sent
         // TODO: Review twitterMain behaviour
@@ -411,17 +359,9 @@ function sendInformation(tabId, changeInfo, tab) {
 		 		if (localStorage["visited"] == "true")
                 {
 		 			try {
-		 				sendPageVisited(tab.url);
+		 				sendPageVisited(tabId, tab.url, localStorage['html'] == "true");
 		 			} catch (e1) {
 		 				console.log("Error en método SendPageVisited: " + e1);
-                    }
-                }
-                if (localStorage["html"] == "true")
-                {
-                    try {
-                        sendHtmlVisited(tab.url);
-                    } catch (e2) {
-                        console.log("Error en método SendHTMLVisited: " + e2);
                     }
                 }
                 if (localStorage["search"] == "true")
@@ -447,43 +387,6 @@ function sendInformation(tabId, changeInfo, tab) {
 			}
 		}
 	}
-}
-
-function updateClicks() {
-	if (current == 2)
-	{
-		alert("Mnopi desactivado. Ya no se guardan los datos");
-		chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-			chrome.tabs.sendMessage(tabs[0].id, {greeting: "off"}, function(response) {
-		  	});
-		});
-		chrome.browserAction.setBadgeText({text:""});
-		chrome.tabs.onUpdated.removeListener(sendInformation);
-		current++;
-	  	if (current > max)
-	    	current = min;
-	    	return;
-	}
-	else
-	{
-		chrome.browserAction.setBadgeText({text:"X"});
-//		alert("Monitorizando");
-		chrome.tabs.onUpdated.addListener(sendInformation);
-	}
-  	current++;
-
-  	if (current > max)
-    	current = min;
-    	
-}
-
-chrome.browserAction.setBadgeText({text:""});
-
-/* Auto login if the user selected to be remembered */
-//TODO: se esta guardando la pass en claro...nefasto.
-//TODO: este sistema de guardar el login es muy cutre, habría que cambiar el login entero del plugin
-if (localStorage['remembered'] && localStorage["email"]){
-    updateClicks()
 }
 
 chrome.runtime.onMessage.addListener(

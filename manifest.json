@@ -1,20 +1,32 @@
-//TODO: Pregutnar Sergio por permiso management, creo que no se usa.
 {
   "name": "Mnopi Plugin Beta",
   "version": "1",
   "description": "It's a secret, so don't tell anyone.",
-  "permissions": ["tabs", "http://*/*", "https://*/*", "history", "background", "management"],
+  "permissions": ["tabs", "http://*/*", "https://*/*", "history", "background", "management",
+                  "notifications"], //TODO: Poner solo mnopi server
   "background": {
     "page" : "html/background.html"
-//TODO: Ojo, página background page en vez de la recomendada event page
-  },
+  },//TODO: Ojo, página background page en vez de la recomendada event page
+
   "browser_action": {
-    "default_icon" : "images/icon.png",
-    "default_popup" : "html/popup.html"
+    "default_icon" : "images/icon_bw_19.png",
+    "default_popup" : "html/login.html"
   },
   "icons" : {
     "48" : "images/icon48.png",
     "128" : "images/icon128.png"
   },
-  "manifest_version": 2
+  "content_scripts": [
+      {
+          "matches": ["<all_urls>"],
+          "js": ["src/html_retriever.js"]
+      }
+  ],
+  "manifest_version": 2,
+  "web_accessible_resources": [
+     "images/icon48.png",
+     "images/icon_bw_48.png",
+     "images/icon.png",
+     "images/icon_bw_19.png"
+  ]
 }
